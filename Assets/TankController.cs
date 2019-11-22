@@ -31,8 +31,6 @@ public class TankController : MonoBehaviour
             posValue.y = 0;
             tankBody.velocity = posValue.normalized * speedValue;
 
-            Debug.Log(tankBody.velocity);
-
             Vector3 newDir = Vector3.RotateTowards(transform.forward, posValue, 0.1f, 0.0f);
             transform.rotation = Quaternion.LookRotation(newDir);
         }
