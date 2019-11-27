@@ -40,8 +40,8 @@ public class TankController : MonoBehaviour
             Debug.Log("Goal " + currentTargetNode.name + " reached");
             currentTargetNode = endTargetNode = null;
         }
-
-        if (currentTargetNode != null)
+        var hit = Physics.Linecast(transform.position, currentTargetNode.transform.position);
+        if (currentTargetNode != null && !hit)
         {
             PointTurretAtTarget();
 
