@@ -23,7 +23,7 @@ public class TankController : MonoBehaviour
     void FixedUpdate()
     {
         // Gets vector direction of movement, normalize and multiply it with speed after setting the y direction to 0
-        Vector3 posValue = currentTargetNode.transform.position - transform.position;
+        Vector3 posValue = /*currentTargetNode.transform.position - transform.position;*/ new Vector3(0, 0, 0);
 
         // Move towards goal
         if (currentTargetNode != null && posValue.magnitude > minDist)
