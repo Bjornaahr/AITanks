@@ -13,6 +13,18 @@ public class GraphNode : MonoBehaviour
     [Range(0, 10)]
     public int ExampleInteger;
 
+    // Required for the PathFinder.cs
+    public bool walkable;
+    // Properties for A* calculations
+    public GraphNode parent;
+    public int gcost;
+    public int hcost;
+    public int Fcost()
+    {
+        return gcost + hcost;
+    }
+    // End required for the PathFinder
+
     private void Update()
     {
         
