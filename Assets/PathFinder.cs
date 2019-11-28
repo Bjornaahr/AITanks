@@ -140,27 +140,26 @@ public class PathFinder : MonoBehaviour
         {
             /*
             // How many diagonal moves do we have to make
-            // to get on the level where node b is
+            // to get on the level where node b is?
             // This is a preliminary model for using positions
-            // to calculate the costs. Nodes are not equiped with
-            // coordinates?
-            {
-                int distX = Mathf.Abs(a.gridx - b.gridx);
-                int distY = Mathf.Abs(a.gridy - b.gridy);
-
-                // TODO - exchange number with constants given
-                // by the nodes positions
-                if (distX > distY)
-                {
-                    return (some constant) * distY + (some constant) * distX;
-                }
-                return (some constant) * distX + (some constant) * (distY - distX);
-            }
+            // to calculate the costs. 
             */
 
+            {
+                // TODO - exchange number with constants given
+                // by the nodes positions
+                int constant_x = 20;
+                int constant_y = 10;
 
-            // Dummy return not to break the code
-            return 10;
+                int distX = (int)Mathf.Abs(a.transform.position.x - b.transform.position.x);
+                int distY = (int)Mathf.Abs(a.transform.position.z - b.transform.position.z);
+
+                if (distX > distY)
+                {
+                    return constant_x * distY + constant_y * distX;
+                }
+                return constant_x * distX + constant_y * (distY - distX);
+            }
         }
     }
 }
