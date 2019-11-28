@@ -30,8 +30,8 @@ public class Graph : MonoBehaviour
 
         Vector3[] floorVerticies = floor.GetComponent<MeshFilter>().sharedMesh.vertices;
 
-        int iL = ((int)floorVerticies[0].x * (int)floor.transform.localScale.x - (int)floorVerticies[120].x * (int)floor.transform.localScale.x) / 3 + 1;
-        int jL = ((int)floorVerticies[0].z * (int)floor.transform.localScale.z - (int)floorVerticies[120].z * (int)floor.transform.localScale.z) / 3 + 1;
+        int iL = (int)(((int)floorVerticies[0].x * (int)floor.transform.localScale.x - (int)floorVerticies[120].x * (int)floor.transform.localScale.x) / 2.5f);
+        int jL = (int)(((int)floorVerticies[0].z * (int)floor.transform.localScale.z - (int)floorVerticies[120].z * (int)floor.transform.localScale.z) / 2.5f);
         
 
         int[,] nodeList = new int[iL, jL];
@@ -40,10 +40,10 @@ public class Graph : MonoBehaviour
 
         int ID = 0;
         
-        for (float x = (int)floorVerticies[120].x * (int)floor.transform.localScale.x; x < (int)floorVerticies[0].x * (int)floor.transform.localScale.x; x += 3)
+        for (float x = (int)floorVerticies[120].x * (int)floor.transform.localScale.x; x < (int)floorVerticies[0].x * (int)floor.transform.localScale.x; x += 2.5f)
         {
             j = 0;
-            for (float y = (int)floorVerticies[120].z * (int)floor.transform.localScale.z; y < (int)floorVerticies[0].z * (int)floor.transform.localScale.z; y += 3)
+            for (float y = (int)floorVerticies[120].z * (int)floor.transform.localScale.z; y < (int)floorVerticies[0].z * (int)floor.transform.localScale.z; y += 2.5f)
             {
                 GameObject newNode = Instantiate(node) as GameObject;
                 newNode.name = ID.ToString();
