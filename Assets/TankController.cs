@@ -8,6 +8,8 @@ public class TankController : MonoBehaviour
     [SerializeField] float minDist = 0.2f;
     [Range(0f, 10f)]
     [SerializeField] float speedValue = 10.0f;
+    [Range(0.01f, 0.2f)]
+    [SerializeField] float rotationValue = 0.12f;
 
     [SerializeField] GraphNode currentTargetNode;  // Current goal
     [SerializeField] GraphNode endTargetNode;       // The end node goal, will be used later
@@ -21,7 +23,9 @@ public class TankController : MonoBehaviour
     IList<GraphNode> path;
     PathFinder pathFinder;
     GameObject EnemyTank;
-    
+
+    Vector3 knownEnemyPosition;                     // Last known position of tank
+
     void Start() 
     {
         graph = GameObject.FindGameObjectWithTag("Graph").GetComponent<Graph>();
@@ -64,11 +68,18 @@ public class TankController : MonoBehaviour
             Debug.Log("Goal " + currentTargetNode.name + " reached");
             currentTargetNode = endTargetNode = null;
         }
+        
+        // Sends a raytrace to check if the enemy tank is in view
         RaycastHit hit;
         if (!Physics.Linecast(transform.position, EnemyTank.transform.position, out hit, ~(1 << gameObject.layer)) || hit.collider.transform == EnemyTank.transform)
         {
-            PointTurretAtTarget();
+            knownEnemyPosition = EnemyTank.transform.position;
+        }
 
+        // Points the turrent towards the last known position of the tank as long as one such position is known
+        if (knownEnemyPosition != null)
+        {
+            PointTurretAtTarget();
         }
         
 
@@ -82,7 +93,18 @@ public class TankController : MonoBehaviour
 
         targetDistance.Normalize();
 
-        turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+       
+        // turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+        
+        // Rotate the forward vector towards the target direction by one step
+        Vector3 newDirection = Vector3.RotateTowards(turretBase.transform.forward, targetDirection, rotationValue, 0.0f);
+
+        // Draw a ray pointing at our target in
+        Debug.DrawRay(turretBase.transform.position, newDirection, Color.blue);
+
+        // Calculate a rotation a step closer to the target and applies rotation to this object
+        turretBase.transform.rotation = Quaternion.LookRotation(newDirection);
+
     }
 
 
