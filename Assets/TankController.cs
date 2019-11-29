@@ -17,23 +17,45 @@ public class TankController : MonoBehaviour
 
     [SerializeField]
     private GameObject turretBase;
+    Graph graph;
+    IList<GraphNode> path;
+    PathFinder pathFinder;
     
+    void Start() 
+    {
+        graph = GameObject.FindGameObjectWithTag("Graph").GetComponent<Graph>();
+        pathFinder = GetComponent<PathFinder>();
 
+        path = pathFinder.FindPath(graph.Nodes[100], graph.Nodes[500], graph);
+        Debug.Log(path.Count);
+        
+    }
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (path != null && path.Count > 0) {
+            currentTargetNode = path[0];
+            if (Vector3.SqrMagnitude(transform.position - currentTargetNode.transform.position) <= 1.0f)
+            {
+                path.RemoveAt(0);
+            }
+            
+        }
+        transform.position = Vector3.MoveTowards(transform.position, new Vector3(currentTargetNode.transform.position.x, transform.position.y, 
+            currentTargetNode.transform.position.z), Time.deltaTime * 2);
         // Gets vector direction of movement, normalize and multiply it with speed after setting the y direction to 0
-        Vector3 posValue = /*currentTargetNode.transform.position - transform.position;*/ new Vector3(0, 0, 0);
+        
+        Vector3 posValue = currentTargetNode.transform.position - transform.position;
 
-        // Move towards goal
+            // Move towards goal
         if (currentTargetNode != null && posValue.magnitude > minDist)
         {
             posValue.y = 0;
-            tankBody.velocity = posValue.normalized * speedValue;
 
             Vector3 newDir = Vector3.RotateTowards(transform.forward, posValue, 0.1f, 0.0f);
             transform.rotation = Quaternion.LookRotation(newDir);
         }
+        
         // If a major goal is chosen, the tank is no longer moving andthe tank have reached its major goal
         else if (endTargetNode != null && (endTargetNode.transform.position - transform.position).magnitude < minDist)
         {
@@ -46,6 +68,10 @@ public class TankController : MonoBehaviour
             PointTurretAtTarget();
 
         }*/
+        
+        
+
+        
     }
 
     void PointTurretAtTarget()

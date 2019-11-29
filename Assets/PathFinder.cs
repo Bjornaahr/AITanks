@@ -35,17 +35,15 @@ public class PathFinder : MonoBehaviour
     // as StartNode and the target as EndNode. This can of course
     // be changed, but I am really not that familiar with Unity
     // and C# yet.
-
-    void FindPath(Vector3 startPos, Vector3 targetPos)
+    public List<GraphNode> FindPath(GraphNode startPos, GraphNode targetPos, Graph analyze)
     {
         // TODO currently takes one grap-object from tank
         // with one Edge-object in list with StartNode and
         // TargetNode
-        Graph analyze = gameObject.AddComponent<Graph>();
-
-
+        //Graph analyze = gameObject.AddComponent<Graph>();
+    
         // Add the tanks StartNode = current position
-        openSet.Add(analyze.Edges[0].StartNode);
+        openSet.Add(startPos);
 
         // New nodes are rearanged until parent is
         // lower than new. Then compare with children and swop to get
@@ -76,7 +74,7 @@ public class PathFinder : MonoBehaviour
             // We have reached the target!
             // TODO please help me to check if it is possible to reference
             // to graph-object like this
-            if (currentNode == analyze.Edges[0].EndNode)
+            if (currentNode == targetPos)
             {
                 // TODO find the best way to return the node-list to tank
                 // I do not know if this use of graph-object data will work
@@ -84,8 +82,7 @@ public class PathFinder : MonoBehaviour
                 // the path directly in to the graph-objects graphNodes list
                 // if this works the graph can be send back to the tank.
                 // You guys have to help me choosing the best way to do this!
-                ReversePath(analyze.Edges[0].StartNode, analyze.Edges[0].EndNode);
-                return;
+                return ReversePath(startPos, targetPos);
             }
 
             // Loop through the node mesh via all nodes adjectents
@@ -93,7 +90,7 @@ public class PathFinder : MonoBehaviour
             {
                 // TODO please inform me if I should choose another approach for
                 // nodes that are not walkable!
-                if (!neighbour.walkable || closedSet.Contains(neighbour))
+                if (/*!neighbour.walkable || */closedSet.Contains(neighbour))
                 {
                     continue;
                 }
@@ -101,66 +98,74 @@ public class PathFinder : MonoBehaviour
                 if (newMovementCostToNeighbour < neighbour.gcost || !openSet.Contains(neighbour))
                 {
                     neighbour.gcost = newMovementCostToNeighbour;
-                    neighbour.hcost = Costs(neighbour, analyze.Edges[0].EndNode);
+                    neighbour.hcost = Costs(neighbour, currentNode);
                     // Set parent for the neighbour to current node
                     neighbour.parent = currentNode;
+                    /*
                     if (!neighbour.walkable)
                     {
                         continue;
+                    }*/
+                    if (!openSet.Contains(neighbour))
+                    {
+                        openSet.Add(neighbour);
                     }
                 }
             }
         }
+        return null;
+    }
 
 
-        // TODO It would be better using the grap-objects property
-        // list Nodes to contain the finished lowest cost path
-        // directly.
+    // TODO It would be better using the grap-objects property
+    // list Nodes to contain the finished lowest cost path
+    // directly.
 
-        // Extracts the shortest path nodes by backtracing the
-        // nodes through their parents and reverse the list
-        // Result: a list of GraphNodes with sequential
-        // shortest path from start node to target
-        void ReversePath(GraphNode startNode, GraphNode endNode)
+    // Extracts the shortest path nodes by backtracing the
+    // nodes through their parents and reverse the list
+    // Result: a list of GraphNodes with sequential
+    // shortest path from start node to target
+    List<GraphNode> ReversePath(GraphNode startNode, GraphNode endNode)
+    {
+        List<GraphNode> path = new List<GraphNode>();
+        GraphNode currentNode = endNode;
+        while (currentNode != startNode)
         {
-            List<GraphNode> path = new List<GraphNode>();
-            GraphNode currentNode = endNode;
-            while (currentNode != startNode)
-            {
-                path.Add(currentNode);
-                currentNode = currentNode.parent;
-            }
-            path.Reverse();
+            path.Add(currentNode);
+            currentNode = currentNode.parent;
         }
+        path.Reverse();
+        return path;
+    }
 
 
         // TODO - how should we best do the calculations? Currently we are
         // not regarding weights on the games nodes.
-        int Costs(GraphNode a, GraphNode b)
+    int Costs(GraphNode a, GraphNode b)
+    {
+        /*
+        // How many diagonal moves do we have to make
+        // to get on the level where node b is?
+        // This is a preliminary model for using positions
+        // to calculate the costs. 
+        */
+
         {
-            /*
-            // How many diagonal moves do we have to make
-            // to get on the level where node b is?
-            // This is a preliminary model for using positions
-            // to calculate the costs. 
-            */
+        // TODO - exchange number with constants given
+        // by the nodes positions
+        int constant_x = 20;
+        int constant_y = 10;
 
-            {
-                // TODO - exchange number with constants given
-                // by the nodes positions
-                int constant_x = 20;
-                int constant_y = 10;
+        int distX = (int)Mathf.Abs(a.transform.position.x - b.transform.position.x);
+        int distY = (int)Mathf.Abs(a.transform.position.z - b.transform.position.z);
 
-                int distX = (int)Mathf.Abs(a.transform.position.x - b.transform.position.x);
-                int distY = (int)Mathf.Abs(a.transform.position.z - b.transform.position.z);
-
-                if (distX > distY)
-                {
-                    return constant_x * distY + constant_y * distX;
-                }
-                return constant_x * distX + constant_y * (distY - distX);
-            }
+        if (distX > distY)
+        {
+            return constant_x * distY + constant_y * distX;
+        }
+        return constant_x * distX + constant_y * (distY - distX);
         }
     }
 }
+
 
