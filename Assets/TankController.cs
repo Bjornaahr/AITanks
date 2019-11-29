@@ -20,11 +20,13 @@ public class TankController : MonoBehaviour
     Graph graph;
     IList<GraphNode> path;
     PathFinder pathFinder;
+    GameObject EnemyTank;
     
     void Start() 
     {
         graph = GameObject.FindGameObjectWithTag("Graph").GetComponent<Graph>();
         pathFinder = GetComponent<PathFinder>();
+        EnemyTank = GameObject.FindGameObjectWithTag("green");
 
         path = pathFinder.FindPath(graph.Nodes[100], graph.Nodes[500], graph);
         Debug.Log(path.Count);
@@ -62,13 +64,12 @@ public class TankController : MonoBehaviour
             Debug.Log("Goal " + currentTargetNode.name + " reached");
             currentTargetNode = endTargetNode = null;
         }
-        /*var hit = Physics.Linecast(transform.position, currentTargetNode.transform.position);
-        if (currentTargetNode != null && !hit)
+        RaycastHit hit;
+        if (!Physics.Linecast(transform.position, EnemyTank.transform.position, out hit, ~(1 << gameObject.layer)) || hit.collider.transform == EnemyTank.transform)
         {
             PointTurretAtTarget();
 
-        }*/
-        
+        }
         
 
         
@@ -76,13 +77,15 @@ public class TankController : MonoBehaviour
 
     void PointTurretAtTarget()
     {
-        var targetDistance = currentTargetNode.gameObject.transform.position - transform.position;
+        var targetDistance = EnemyTank.gameObject.transform.position - transform.position;
         var targetDirection = targetDistance;
 
         targetDistance.Normalize();
 
         turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
     }
+
+
 
     void MoveForward()
     {
