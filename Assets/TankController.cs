@@ -25,13 +25,16 @@ public class TankController : MonoBehaviour
     GameObject EnemyTank;
 
     Vector3 knownEnemyPosition;                     // Last known position of tank
+    [SerializeField] Transform barrelDirection;     // Direction of barrel
+    [SerializeField] TankShooting shoot;            // Shooting script
 
     void Start() 
     {
         graph = GameObject.FindGameObjectWithTag("Graph").GetComponent<Graph>();
         pathFinder = GetComponent<PathFinder>();
         EnemyTank = GameObject.FindGameObjectWithTag("green");
-
+        shoot = gameObject.GetComponent<TankShooting>();
+        
         path = pathFinder.FindPath(graph.Nodes[100], graph.Nodes[500], graph);
         Debug.Log(path.Count);
         
@@ -74,6 +77,13 @@ public class TankController : MonoBehaviour
         if (!Physics.Linecast(transform.position, EnemyTank.transform.position, out hit, ~(1 << gameObject.layer)) || hit.collider.transform == EnemyTank.transform)
         {
             knownEnemyPosition = EnemyTank.transform.position;
+
+            // check if barrel points towards target
+            RaycastHit barrelHit;
+            if (!Physics.Linecast(transform.position, transform.position + barrelDirection.eulerAngles, out barrelHit, ~(1 << gameObject.layer)) || barrelHit.collider.transform == EnemyTank.transform)
+            {
+                // shoot.Fire();
+            }
         }
 
         // Points the turrent towards the last known position of the tank as long as one such position is known
