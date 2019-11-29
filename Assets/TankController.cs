@@ -24,6 +24,8 @@ public class TankController : MonoBehaviour
     IList<GraphNode> path;
     PathFinder pathFinder;
     GameObject EnemyTank;
+    GameObject[] Tanks;
+    public Color Friendly;
 
     Vector3 knownEnemyPosition;                     // Last known position of tank
     [SerializeField] Transform barrelDirection;     // Direction of barrel
@@ -33,11 +35,15 @@ public class TankController : MonoBehaviour
     {
         graph = GameObject.FindGameObjectWithTag("Graph").GetComponent<Graph>();
         pathFinder = GetComponent<PathFinder>();
-        EnemyTank = GameObject.FindGameObjectWithTag("green");
+        Tanks = GameObject.FindGameObjectsWithTag("gray");
         shoot = gameObject.GetComponent<TankShooting>();
         
         path = pathFinder.FindPath(graph.Nodes[100], graph.Nodes[500], graph);
-        Debug.Log(path.Count);
+        foreach(var Tank in Tanks) {
+            if (Tank.GetComponent<TankController>().Friendly != this.Friendly) {
+                EnemyTank = Tank;
+            }
+        }
         
     }
     
@@ -126,5 +132,10 @@ public class TankController : MonoBehaviour
 
         gameObject.transform.position = newPosition;
         tankBody.MovePosition(newPosition);
+    }
+
+    public void getColor(Color c)
+    {
+        Friendly = c;
     }
 }
