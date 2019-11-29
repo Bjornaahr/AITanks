@@ -47,10 +47,8 @@ namespace Complete
         private void Update()
         {
             timeLastShot += Time.deltaTime; // Updates time since last shot
-
             // OLD, allows increasing speed for shootign and so through clicking space
-
-
+            
             // The slider should have a default value of the minimum launch force.
             m_AimSlider.value = m_MinLaunchForce;
 

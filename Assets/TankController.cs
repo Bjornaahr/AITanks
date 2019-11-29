@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Complete;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,6 +40,7 @@ public class TankController : MonoBehaviour
         Debug.Log(path.Count);
         
     }
+    
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -74,15 +76,20 @@ public class TankController : MonoBehaviour
         
         // Sends a raytrace to check if the enemy tank is in view
         RaycastHit hit;
-        if (!Physics.Linecast(transform.position, EnemyTank.transform.position, out hit, ~(1 << gameObject.layer)) || hit.collider.transform == EnemyTank.transform)
-        {
-            knownEnemyPosition = EnemyTank.transform.position;
+        bool tankVisible = !Physics.Linecast(transform.position, new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z), out hit, ~(1 << gameObject.layer));
 
+        Debug.DrawRay(barrelDirection.position, barrelDirection.forward * 100, Color.blue);    // DEBUG
+
+        if (tankVisible || hit.collider.transform == EnemyTank.transform)
+        {
+            knownEnemyPosition = new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z);
             // check if barrel points towards target
             RaycastHit barrelHit;
-            if (!Physics.Linecast(transform.position, transform.position + barrelDirection.eulerAngles, out barrelHit, ~(1 << gameObject.layer)) || barrelHit.collider.transform == EnemyTank.transform)
+            
+            // Only shoots if the enemy is in sights from the turret
+            if (Physics.Linecast(transform.position, transform.position + barrelDirection.forward * 100, out barrelHit, (1 << gameObject.layer))) //|| barrelHit.collider.transform == EnemyTank.transform)
             {
-                // shoot.Fire();
+                shoot.Fire();
             }
         }
 
@@ -91,30 +98,22 @@ public class TankController : MonoBehaviour
         {
             PointTurretAtTarget();
         }
-        
-
-        
     }
 
     void PointTurretAtTarget()
     {
-        var targetDistance = EnemyTank.gameObject.transform.position - transform.position;
+        var targetDistance = knownEnemyPosition - transform.position;
         var targetDirection = targetDistance;
-
+        targetDirection.y = 0;
         targetDistance.Normalize();
-
-       
+        
         // turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
         
         // Rotate the forward vector towards the target direction by one step
         Vector3 newDirection = Vector3.RotateTowards(turretBase.transform.forward, targetDirection, rotationValue, 0.0f);
-
-        // Draw a ray pointing at our target in
-        Debug.DrawRay(turretBase.transform.position, newDirection, Color.blue);
-
+        
         // Calculate a rotation a step closer to the target and applies rotation to this object
         turretBase.transform.rotation = Quaternion.LookRotation(newDirection);
-
     }
 
 
