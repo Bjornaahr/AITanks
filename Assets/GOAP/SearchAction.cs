@@ -5,17 +5,24 @@ using UnityEngine;
 public class SearchAction : AbstractGOAPAction
 {
 
+    private bool enemySeen = false;
+
     public SearchAction()
     {
         addPrecondition("canSeeEnemy", false);
         addPrecondition("hasEnoughHealth", true);
+        addEffect("shootCannon", true);
     }
 
+    public override void reset()
+    {
+        enemySeen = false;
+    }
 
     //Check if we have last known position, if not take it random walk
     public override bool checkPrecondtion(GameObject agent)
     {
-        throw new System.NotImplementedException();
+        return true;
     }
 
     public override bool isDone()
@@ -34,9 +41,6 @@ public class SearchAction : AbstractGOAPAction
         return false;
     }
 
-    public override void reset()
-    {
-        
-    }
+  
 
 }
