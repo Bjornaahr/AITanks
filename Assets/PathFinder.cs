@@ -28,7 +28,7 @@ public class PathFinder : MonoBehaviour
     public HashSet<GraphNode> closedSet = new HashSet<GraphNode>();
 
     // TODO choose input data format from tank
-
+    
     // Current: build to get a graph-object from tank with
     // a single Edge-object in the Edges (list).
     // The Edge-object should contain the tanks start position
@@ -37,11 +37,15 @@ public class PathFinder : MonoBehaviour
     // and C# yet.
     public List<GraphNode> FindPath(GraphNode startPos, GraphNode targetPos, Graph analyze)
     {
+
+        closedSet.Clear();
+        openSet.Clear();
+
         // TODO currently takes one grap-object from tank
         // with one Edge-object in list with StartNode and
         // TargetNode
         //Graph analyze = gameObject.AddComponent<Graph>();
-    
+         
         // Add the tanks StartNode = current position
         openSet.Add(startPos);
 

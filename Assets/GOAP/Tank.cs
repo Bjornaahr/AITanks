@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Complete;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class Tank : MonoBehaviour, IGoap
     [SerializeField] float minDist = 0.2f;
     [Range(0f, 10f)]
     [SerializeField] float speedValue = 10.0f;
+    [Range(0.01f, 0.2f)]
+    [SerializeField] float rotationValue = 0.12f;
 
     [SerializeField] GraphNode currentTargetNode;  // Current goal
     [SerializeField] GraphNode endTargetNode;       // The end node goal, will be used later
@@ -22,40 +25,70 @@ public class Tank : MonoBehaviour, IGoap
     IList<GraphNode> path;
     PathFinder pathFinder;
     GameObject EnemyTank;
+    GameObject[] Tanks;
+    public Color Friendly;
+
+    Vector3 knownEnemyPosition;                     // Last known position of tank
+    [SerializeField] Transform barrelDirection;     // Direction of barrel
+    [SerializeField] TankShooting shoot;            // Shooting script
+
     AbstractGOAPAction abstractGOAPAction;
+    bool canSeeEnemy, healthOver10;
+    TankHealth tankHealth;
+
 
     void Start()
     {
         graph = GameObject.FindGameObjectWithTag("Graph").GetComponent<Graph>();
         pathFinder = GetComponent<PathFinder>();
-        EnemyTank = GameObject.FindGameObjectWithTag("green");
+        Tanks = GameObject.FindGameObjectsWithTag("gray");
+        shoot = gameObject.GetComponent<TankShooting>();
+        tankHealth = GetComponent<TankHealth>();
+        healthOver10 = true;
+       // path = pathFinder.FindPath(graph.Nodes[198], graph.Nodes[212], graph);
 
-        //path = pathFinder.FindPath(graph.Nodes[100], graph.Nodes[500], graph);
-        calculatePath(abstractGOAPAction);
-        Debug.Log(path.Count);
+        
+       foreach (var Tank in Tanks)
+       {
+            if (Tank.GetComponent<Tank>().Friendly != this.Friendly)
+            {
+                EnemyTank = Tank;
+            }
+       }
+
     }
 
-    void Update()
+    void FixedUpdate()
     {
         moveAgent(abstractGOAPAction);
+
+        if(tankHealth.m_CurrentHealth <= 10)
+        {
+            healthOver10 = false;
+            Debug.Log("Health Under 10");
+        }
+
     }
 
     public void actionsFinished()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Action Done");
     }
 
     public HashSet<KeyValuePair<string, object>> createGoalState()
     {
-        throw new System.NotImplementedException();
+        HashSet<KeyValuePair<string, object>> goal = new HashSet<KeyValuePair<string, object>>();
+        goal.Add(new KeyValuePair<string, object>("damageTank", true));
+       // goal.Add(new KeyValuePair<string, object>("stayAlive", true));
+        return goal;
     }
 
     public HashSet<KeyValuePair<string, object>> getWorldState()
     {
-        HashSet<KeyValuePair<string, object>> goal = new HashSet<KeyValuePair<string, object>>();
-        goal.Add(new KeyValuePair<string, object> ("damageTank", true));
-        goal.Add(new KeyValuePair<string, object> ("stayAlive", true));
-        return goal;
+        HashSet<KeyValuePair<string, object>> worldData = new HashSet<KeyValuePair<string, object>>();
+        worldData.Add(new KeyValuePair<string, object>("canSeeEnemy", canSeeEnemy)); 
+        worldData.Add(new KeyValuePair<string, object>("hasEnoughHealth", healthOver10));
+        return worldData;
     }
 
    
@@ -67,12 +100,15 @@ public class Tank : MonoBehaviour, IGoap
 
     public void planFailed(HashSet<KeyValuePair<string, object>> failedGoal)
     {
-        throw new System.NotImplementedException();
+        foreach (var n in failedGoal)
+        {
+            Debug.LogWarning(n);
+        }
     }
 
     public void planFound(HashSet<KeyValuePair<string, object>> goal, Queue<AbstractGOAPAction> actions)
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Plan Found");
     }
 
 
@@ -91,7 +127,7 @@ public class Tank : MonoBehaviour, IGoap
         }
         transform.position = Vector3.MoveTowards(transform.position, new Vector3(currentTargetNode.transform.position.x, transform.position.y,
             currentTargetNode.transform.position.z), Time.deltaTime * 2);
-        
+
         // Gets vector direction of movement, normalize and multiply it with speed after setting the y direction to 
         Vector3 posValue = currentTargetNode.transform.position - transform.position;
 
@@ -104,55 +140,89 @@ public class Tank : MonoBehaviour, IGoap
             transform.rotation = Quaternion.LookRotation(newDir);
         }
 
-        // If a major goal is chosen, the tank is no longer moving andthe tank have reached its major goal
-        else if (endTargetNode != null && (endTargetNode.transform.position - transform.position).magnitude < minDist)
-        {
-            Debug.Log("Goal " + currentTargetNode.name + " reached");
-            currentTargetNode = endTargetNode = null;
-        }
+
+        // Sends a raytrace to check if the enemy tank is in view
         RaycastHit hit;
-        if (!Physics.Linecast(transform.position, EnemyTank.transform.position, out hit, ~(1 << gameObject.layer)) || hit.collider.transform == EnemyTank.transform)
+        bool tankVisible = !Physics.Linecast(transform.position, new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z), out hit, ~(1 << gameObject.layer));
+
+        Debug.DrawRay(barrelDirection.position, barrelDirection.forward * 100, Color.blue);    // DEBUG
+
+        if (tankVisible || hit.collider.transform == EnemyTank.transform)
+        {
+            knownEnemyPosition = new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z);
+            // check if barrel points towards target
+            RaycastHit barrelHit;
+
+            // Only shoots if the enemy is in sights from the turret
+            if (Physics.Linecast(transform.position, transform.position + barrelDirection.forward * 100, out barrelHit, (1 << gameObject.layer))) //|| barrelHit.collider.transform == EnemyTank.transform)
+            {
+                shoot.Fire();
+            }
+        }
+
+        // Points the turrent towards the last known position of the tank as long as one such position is known
+        if (knownEnemyPosition != null)
         {
             PointTurretAtTarget();
-        } return true;
+        }
+        return true;
     }
 
 
     void PointTurretAtTarget()
     {
-        var targetDistance = EnemyTank.gameObject.transform.position - transform.position;
+        var targetDistance = knownEnemyPosition - transform.position;
         var targetDirection = targetDistance;
-
+        targetDirection.y = 0;
         targetDistance.Normalize();
 
-        turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+        // turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+
+        // Rotate the forward vector towards the target direction by one step
+        Vector3 newDirection = Vector3.RotateTowards(turretBase.transform.forward, targetDirection, rotationValue, 0.0f);
+
+        // Calculate a rotation a step closer to the target and applies rotation to this object
+        turretBase.transform.rotation = Quaternion.LookRotation(newDirection);
     }
 
 
-    public void calculatePath(AbstractGOAPAction nextAction)
+    public GraphNode CalculatePath(Vector3 target)
     {
-        path = pathFinder.FindPath(findNodeCloseToPosition(transform.position), findNodeCloseToPosition(new Vector3(41, 0, 17)), graph);
+        Debug.Log("Starting finding closest node");
+        GraphNode targetNode = findNodeCloseToPosition(target);
+        GraphNode posNode = findNodeCloseToPosition(transform.position);
+        Debug.Log("Starting finding path");
+
+       
+        path = pathFinder.FindPath(posNode, targetNode, graph);
+        Debug.Log("New Path");
+        return targetNode;
     }
 
-    GraphNode findNodeCloseToPosition(Vector3 wantedPosition)
+    public GraphNode findNodeCloseToPosition(Vector3 wantedPosition)
     {
         GraphNode nearNode = null;
         float closestDist = Mathf.Infinity;
         
         foreach(GraphNode potenitalNode in graph.Nodes)
         {
-            Debug.Log(potenitalNode.transform);
             Vector3 directionToTarget = potenitalNode.transform.position - wantedPosition;
             float sqrToTarget = directionToTarget.sqrMagnitude;
             if (sqrToTarget < closestDist)
             {
                 closestDist = sqrToTarget;
                 nearNode = potenitalNode;
-            }
+            } 
         }
-        Debug.Log(nearNode.transform.position);
+
         return nearNode;
 
+    }
+
+
+    public void getColor(Color c)
+    {
+        Friendly = c;
     }
 
 }

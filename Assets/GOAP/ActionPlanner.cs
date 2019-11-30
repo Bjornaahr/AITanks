@@ -7,10 +7,10 @@ public class ActionPlanner : MonoBehaviour
 {
 
     /**
-	 * Plan what sequence of actions can fulfill the goal.
-	 * Returns null if a plan could not be found, or a list of the actions
-	 * that must be performed, in order, to fulfill the goal.
-	 */
+      * Plan what sequence of actions can fulfill the goal.
+      * Returns null if a plan could not be found, or a list of the actions
+      * that must be performed, in order, to fulfill the goal.
+      */
     public Queue<AbstractGOAPAction> plan(GameObject agent,
                                   HashSet<AbstractGOAPAction> availableActions,
                                   HashSet<KeyValuePair<string, object>> worldState,
@@ -42,7 +42,7 @@ public class ActionPlanner : MonoBehaviour
         if (!success)
         {
             // oh no, we didn't get a plan
-            Debug.Log("NO PLAN");
+            //Debug.Log("NO PLAN");
             return null;
         }
 
@@ -88,7 +88,7 @@ public class ActionPlanner : MonoBehaviour
 	 * 'runningCost' value where the lowest cost will be the best action
 	 * sequence.
 	 */
-    private bool buildGraph(Node parent, List<Node> leaves, HashSet<AbstractGOAPAction> usableActions, HashSet<KeyValuePair<string, object>> goal)
+    protected bool buildGraph(Node parent, List<Node> leaves, HashSet<AbstractGOAPAction> usableActions, HashSet<KeyValuePair<string, object>> goal)
     {
         bool foundOne = false;
 
@@ -105,7 +105,7 @@ public class ActionPlanner : MonoBehaviour
                 //Debug.Log(GoapAgent.prettyPrint(currentState));
                 Node node = new Node(parent, parent.runningCost + action.cost, currentState, action);
 
-                if (inState(goal, currentState))
+                if (goalInState(goal, currentState))
                 {
                     // we found a solution!
                     leaves.Add(node);
@@ -113,12 +113,14 @@ public class ActionPlanner : MonoBehaviour
                 }
                 else
                 {
-                    // not at a solution yet, so test all the remaining actions and branch out the tree
+                    // test all the remaining actions and branch out the tree
                     HashSet<AbstractGOAPAction> subset = actionSubset(usableActions, action);
                     bool found = buildGraph(node, leaves, subset, goal);
                     if (found)
                         foundOne = true;
                 }
+
+
             }
         }
 
@@ -128,7 +130,7 @@ public class ActionPlanner : MonoBehaviour
     /**
 	 * Create a subset of the actions excluding the removeMe one. Creates a new set.
 	 */
-    private HashSet<AbstractGOAPAction> actionSubset(HashSet<AbstractGOAPAction> actions, AbstractGOAPAction removeMe)
+    protected HashSet<AbstractGOAPAction> actionSubset(HashSet<AbstractGOAPAction> actions, AbstractGOAPAction removeMe)
     {
         HashSet<AbstractGOAPAction> subset = new HashSet<AbstractGOAPAction>();
         foreach (AbstractGOAPAction a in actions)
@@ -139,11 +141,32 @@ public class ActionPlanner : MonoBehaviour
         return subset;
     }
 
-    /**
+    /*
+	 * Checks if at least one goal is met. 
+	 * to-do: Create a system for weighting towards paths that fulfill more goals
+	 */
+    protected bool goalInState(HashSet<KeyValuePair<string, object>> test, HashSet<KeyValuePair<string, object>> state)
+    {
+        bool match = false;
+        foreach (KeyValuePair<string, object> t in test)
+        {
+            foreach (KeyValuePair<string, object> s in state)
+            {
+                if (s.Equals(t))
+                {
+                    match = true;
+                    break;
+                }
+            }
+        }
+        return match;
+    }
+
+    /*
 	 * Check that all items in 'test' are in 'state'. If just one does not match or is not there
 	 * then this returns false.
 	 */
-    private bool inState(HashSet<KeyValuePair<string, object>> test, HashSet<KeyValuePair<string, object>> state)
+    protected bool inState(HashSet<KeyValuePair<string, object>> test, HashSet<KeyValuePair<string, object>> state)
     {
         bool allMatch = true;
         foreach (KeyValuePair<string, object> t in test)
@@ -166,7 +189,7 @@ public class ActionPlanner : MonoBehaviour
     /**
 	 * Apply the stateChange to the currentState
 	 */
-    private HashSet<KeyValuePair<string, object>> populateState(HashSet<KeyValuePair<string, object>> currentState, HashSet<KeyValuePair<string, object>> stateChange)
+    protected HashSet<KeyValuePair<string, object>> populateState(HashSet<KeyValuePair<string, object>> currentState, HashSet<KeyValuePair<string, object>> stateChange)
     {
         HashSet<KeyValuePair<string, object>> state = new HashSet<KeyValuePair<string, object>>();
         // copy the KVPs over as new objects
@@ -182,7 +205,7 @@ public class ActionPlanner : MonoBehaviour
 
             foreach (KeyValuePair<string, object> s in state)
             {
-                if (s.Equals(change))
+                if (s.Key.Equals(change.Key))
                 {
                     exists = true;
                     break;
@@ -207,7 +230,7 @@ public class ActionPlanner : MonoBehaviour
     /**
 	 * Used for building up the graph and holding the running costs of actions.
 	 */
-    private class Node
+    protected class Node
     {
         public Node parent;
         public float runningCost;
