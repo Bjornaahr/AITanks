@@ -10,8 +10,8 @@ public class Tank : MonoBehaviour, IGoap
     [SerializeField] float minDist = 0.2f;
     [Range(0f, 10f)]
     [SerializeField] float speedValue = 10.0f;
-    [Range(0.01f, 0.2f)]
-    [SerializeField] float rotationValue = 0.12f;
+    [Range(0.2f, 10.0f)]
+    [SerializeField] float rotationValue = 1.0f;
 
     [SerializeField] GraphNode currentTargetNode;  // Current goal
     [SerializeField] GraphNode endTargetNode;       // The end node goal, will be used later
@@ -181,7 +181,7 @@ public class Tank : MonoBehaviour, IGoap
         // turretBase.transform.rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
 
         // Rotate the forward vector towards the target direction by one step
-        Vector3 newDirection = Vector3.RotateTowards(turretBase.transform.forward, targetDirection, rotationValue, 0.0f);
+        Vector3 newDirection = Vector3.RotateTowards(turretBase.transform.forward, targetDirection, rotationValue * Time.deltaTime, 0.0f);
 
         // Calculate a rotation a step closer to the target and applies rotation to this object
         turretBase.transform.rotation = Quaternion.LookRotation(newDirection);
