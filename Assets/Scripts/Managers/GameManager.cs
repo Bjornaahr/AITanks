@@ -73,7 +73,7 @@ namespace Complete
             }
 
             // These are the targets the camera should follow.
-            m_CameraControl.m_Targets = targets;
+            // m_CameraControl.m_Targets = targets;
         }
 
 
@@ -112,11 +112,11 @@ namespace Complete
             DisableTankControl ();
 
             // Snap the camera's zoom and position to something appropriate for the reset tanks.
-            m_CameraControl.SetStartPositionAndSize ();
+            // m_CameraControl.SetStartPositionAndSize ();
 
             // Increment the round number and display text showing the players what round it is.
             m_RoundNumber++;
-            m_MessageText.text = "ROUND " + m_RoundNumber;
+            // m_MessageText.text = "ROUND " + m_RoundNumber;
 
             // Wait for the specified length of time until yielding control back to the game loop.
             yield return m_StartWait;
@@ -129,7 +129,7 @@ namespace Complete
             EnableTankControl ();
 
             // Clear the text from the screen.
-            m_MessageText.text = string.Empty;
+            // m_MessageText.text = string.Empty;
 
             // While there is not one tank left...
             while (!OneTankLeft())
