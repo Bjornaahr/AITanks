@@ -81,6 +81,13 @@ namespace Complete
 
             m_Instance.SetActive (false);
             m_Instance.SetActive (true);
+
+            // Gets all Projectiles
+            var shells = GameObject.FindObjectsOfType<DeleteShell>();
+            foreach (DeleteShell bullet in shells)
+            {
+                bullet.Despawn();
+            }
         }
     }
 }
