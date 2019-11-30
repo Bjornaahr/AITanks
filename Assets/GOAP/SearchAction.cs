@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Complete;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,21 +15,31 @@ public class SearchAction : AbstractGOAPAction
 
     public SearchAction()
     {
-       addPrecondition("canSeeEnemy", false);
        addPrecondition("hasEnoughHealth", true);
-       addEffect("damageTank", true);
+       addPrecondition("canSeeEnemy", false);
+       addEffect("canSeeEnemy", true);
        targetNode = null;
+       enemySeen = false;
     }
 
     public override void reset()
     {
+        Debug.Log("ResetSearch");
         targetNode = null;
-        enemySeen = false;
     }
 
     //Check if we have last known position, if not take it random walk
     public override bool checkPrecondtion(GameObject agent)
     {
+
+        TankHealth currentH = agent.GetComponent<TankHealth>();
+        Tank currentA = agent.GetComponent<Tank>();
+
+        if (currentH.m_CurrentHealth <= 10 || currentA.canSeeEnemy)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -49,9 +60,15 @@ public class SearchAction : AbstractGOAPAction
             float randomZ = Random.Range(minZ, maxZ);
             Vector3 targetPos = new Vector3(randomX, 0, randomZ);
             targetNode = currentA.CalculatePath(targetPos);
-            Debug.Log("Targetnode Pis: " + targetNode);
-            Debug.Log(targetPos);
         }
+
+
+        if (currentA.canSeeEnemy)
+        {
+            enemySeen = true;
+        }
+        else enemySeen = false;
+
         return true;
 
     }

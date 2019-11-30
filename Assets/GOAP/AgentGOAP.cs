@@ -16,7 +16,8 @@ public class AgentGOAP : MonoBehaviour
     private Queue<AbstractGOAPAction> currentActions;
     private IGoap dataProvider;
     private ActionPlanner planner;
-
+    [SerializeField]
+    private AbstractGOAPAction[] actions;
 
     // Use this for initialization
     void Start()
@@ -31,6 +32,9 @@ public class AgentGOAP : MonoBehaviour
         createPerformActionState();
         stateMachine.pushState(idleState);
         loadActions();
+
+        actions = GetComponents<AbstractGOAPAction>();
+
     }
 
     // Update is called once per frame
@@ -188,7 +192,7 @@ public class AgentGOAP : MonoBehaviour
     {
         if (availableActions != null)
         {
-            foreach (AbstractGOAPAction ac in availableActions)
+            foreach (AbstractGOAPAction ac in actions)
             {
                 ac.reset();
             }

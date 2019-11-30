@@ -24,7 +24,7 @@ public class Tank : MonoBehaviour, IGoap
     Graph graph;
     IList<GraphNode> path;
     PathFinder pathFinder;
-    GameObject EnemyTank;
+    public GameObject EnemyTank;
     GameObject[] Tanks;
     public Color Friendly;
 
@@ -33,9 +33,10 @@ public class Tank : MonoBehaviour, IGoap
     [SerializeField] TankShooting shoot;            // Shooting script
 
     AbstractGOAPAction abstractGOAPAction;
-    bool canSeeEnemy, healthOver10;
+    [SerializeField]
+    bool healthOver10;
     TankHealth tankHealth;
-
+    public bool canSeeEnemy;
 
     void Start()
     {
@@ -62,10 +63,9 @@ public class Tank : MonoBehaviour, IGoap
     {
         moveAgent(abstractGOAPAction);
 
-        if(tankHealth.m_CurrentHealth <= 10)
+        if (tankHealth.m_CurrentHealth <= 10)
         {
             healthOver10 = false;
-            Debug.Log("Health Under 10");
         }
 
     }
@@ -79,7 +79,7 @@ public class Tank : MonoBehaviour, IGoap
     {
         HashSet<KeyValuePair<string, object>> goal = new HashSet<KeyValuePair<string, object>>();
         goal.Add(new KeyValuePair<string, object>("damageTank", true));
-       // goal.Add(new KeyValuePair<string, object>("stayAlive", true));
+        goal.Add(new KeyValuePair<string, object>("stayAlive", true));
         return goal;
     }
 
@@ -108,7 +108,8 @@ public class Tank : MonoBehaviour, IGoap
 
     public void planFound(HashSet<KeyValuePair<string, object>> goal, Queue<AbstractGOAPAction> actions)
     {
-        Debug.Log("Plan Found");
+        foreach(var n in actions)
+        Debug.Log(n);
     }
 
 
@@ -145,8 +146,10 @@ public class Tank : MonoBehaviour, IGoap
         }
         // Sends a raytrace to check if the enemy tank is in view
         RaycastHit hit;
-        bool tankVisible = !Physics.Linecast(transform.position, new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z), out hit, ~(1 << gameObject.layer));
+        bool tankVisible = !Physics.Linecast(transform.position, EnemyTank.transform.position, out hit, ~(1 << gameObject.layer));
 
+        canSeeEnemy = tankVisible;
+        Debug.DrawLine(transform.position, EnemyTank.transform.position, Color.green);
         Debug.DrawRay(barrelDirection.position, barrelDirection.forward * 100, Color.blue);    // DEBUG
 
         if (tankVisible || hit.collider.transform == EnemyTank.transform)
@@ -154,13 +157,14 @@ public class Tank : MonoBehaviour, IGoap
             knownEnemyPosition = new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z);
             // check if barrel points towards target
             RaycastHit barrelHit;
-
             // Only shoots if the enemy is in sights from the turret
             if (Physics.Linecast(transform.position, transform.position + barrelDirection.forward * 100, out barrelHit, (1 << gameObject.layer))) //|| barrelHit.collider.transform == EnemyTank.transform)
             {
                 shoot.Fire();
             }
+
         }
+     
 
         // Points the turrent towards the last known position of the tank as long as one such position is known
         if (knownEnemyPosition != null)
@@ -190,14 +194,11 @@ public class Tank : MonoBehaviour, IGoap
 
     public GraphNode CalculatePath(Vector3 target)
     {
-        Debug.Log("Starting finding closest node");
         GraphNode targetNode = findNodeCloseToPosition(target);
         GraphNode posNode = findNodeCloseToPosition(transform.position);
-        Debug.Log("Starting finding path");
 
        
         path = pathFinder.FindPath(posNode, targetNode, graph);
-        Debug.Log("New Path");
         return targetNode;
     }
 
