@@ -186,9 +186,12 @@ public class AgentGOAP : MonoBehaviour
 
     public void resetActions()
     {
-        foreach (AbstractGOAPAction ac in availableActions)
+        if (availableActions != null)
         {
-            ac.reset();
+            foreach (AbstractGOAPAction ac in availableActions)
+            {
+                ac.reset();
+            }
         }
     }
 

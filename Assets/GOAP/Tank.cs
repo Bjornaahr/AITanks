@@ -125,22 +125,24 @@ public class Tank : MonoBehaviour, IGoap
             }
 
         }
-        transform.position = Vector3.MoveTowards(transform.position, new Vector3(currentTargetNode.transform.position.x, transform.position.y,
-            currentTargetNode.transform.position.z), Time.deltaTime * 2);
-
-        // Gets vector direction of movement, normalize and multiply it with speed after setting the y direction to 
-        Vector3 posValue = currentTargetNode.transform.position - transform.position;
-
-        // Move towards goal
-        if (currentTargetNode != null && posValue.magnitude > minDist)
+        if (currentTargetNode != null)
         {
-            posValue.y = 0;
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(currentTargetNode.transform.position.x, transform.position.y,
+                currentTargetNode.transform.position.z), Time.deltaTime * 2);
 
-            Vector3 newDir = Vector3.RotateTowards(transform.forward, posValue, 0.1f, 0.0f);
-            transform.rotation = Quaternion.LookRotation(newDir);
+            // Gets vector direction of movement, normalize and multiply it with speed after setting the y direction to 
+            Vector3 posValue = currentTargetNode.transform.position - transform.position;
+
+            // Move towards goal
+            if (currentTargetNode != null && posValue.magnitude > minDist)
+            {
+                posValue.y = 0;
+
+                Vector3 newDir = Vector3.RotateTowards(transform.forward, posValue, 0.1f, 0.0f);
+                transform.rotation = Quaternion.LookRotation(newDir);
+            }
+
         }
-
-
         // Sends a raytrace to check if the enemy tank is in view
         RaycastHit hit;
         bool tankVisible = !Physics.Linecast(transform.position, new Vector3(EnemyTank.transform.position.x, 0, EnemyTank.transform.position.z), out hit, ~(1 << gameObject.layer));
