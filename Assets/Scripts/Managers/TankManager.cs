@@ -81,7 +81,8 @@ namespace Complete
             m_Instance.transform.rotation = m_SpawnPoint.rotation;
 
             m_AgentGOAP.resetActions();
-            m_Controller.knownEnemyPosition = Vector3.zero; 
+            m_Controller.knownEnemyPosition = Vector3.zero;
+            m_Controller.healthOver10 = true;
 
             m_Instance.SetActive (false);
             m_Instance.SetActive (true);

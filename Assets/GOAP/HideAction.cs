@@ -21,7 +21,8 @@ public class HideAction : AbstractGOAPAction
     //Check if there is any procedural conditions that needs to be checked
     public override bool checkPrecondtion(GameObject agent)
     {
-        return true;
+        Tank tank = GetComponent<Tank>();
+        return tank.healthOver10;
     }
 
     //Resetting the imporant variables needed to execute the action
