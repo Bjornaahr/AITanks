@@ -63,7 +63,7 @@ public class Tank : MonoBehaviour, IGoap
     {
         moveAgent(abstractGOAPAction);
 
-        if (tankHealth.m_CurrentHealth <= 10)
+        if (tankHealth.m_CurrentHealth <= 70)
         {
             healthOver10 = false;
         }
