@@ -18,6 +18,7 @@ public class SearchAction : AbstractGOAPAction
        addPrecondition("hasEnoughHealth", true);
        addPrecondition("canSeeEnemy", false);
        addEffect("canSeeEnemy", true);
+       addEffect("searchForTank", true);
        targetNode = null;
        enemySeen = false;
     }
@@ -26,6 +27,7 @@ public class SearchAction : AbstractGOAPAction
     {
         Debug.Log("ResetSearch");
         targetNode = null;
+        enemySeen = false;
     }
 
     //Check if we have last known position, if not take it random walk
@@ -56,10 +58,10 @@ public class SearchAction : AbstractGOAPAction
 
         if (targetNode == null || currentA.findNodeCloseToPosition(transform.position) == targetNode)
         {
-            float randomX = Random.Range(minX, maxX);
-            float randomZ = Random.Range(minZ, maxZ);
-            Vector3 targetPos = new Vector3(randomX, 0, randomZ);
-            targetNode = currentA.CalculatePath(targetPos);
+                float randomX = Random.Range(minX, maxX);
+                float randomZ = Random.Range(minZ, maxZ);
+                Vector3 targetPos = new Vector3(randomX, 0, randomZ);
+                targetNode = currentA.CalculatePath(targetPos);
         }
 
 

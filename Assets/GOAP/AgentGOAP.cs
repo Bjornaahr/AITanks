@@ -11,6 +11,7 @@ public class AgentGOAP : MonoBehaviour
     private FSM.FSMState idleState;
     private FSM.FSMState moveToState;
     private FSM.FSMState performActionState;
+    private FSM.FSMState resetActionState;
 
     private HashSet<AbstractGOAPAction> availableActions;
     private Queue<AbstractGOAPAction> currentActions;
@@ -148,7 +149,7 @@ public class AgentGOAP : MonoBehaviour
                     {
                         fsm.popState();
                         fsm.pushState(idleState);
-                        createIdleState();
+                       // createIdleState();
                         dataProvider.planAborted(action);
                     }
                 }
@@ -199,6 +200,13 @@ public class AgentGOAP : MonoBehaviour
         }
     }
 
-
+    public void ResetPlans()
+    {
+        resetActionState = (fsm, obj) =>
+        {
+            fsm.popState();
+            fsm.pushState(idleState);
+        };
+    }
 
 }

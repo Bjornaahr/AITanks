@@ -28,7 +28,7 @@ public class Tank : MonoBehaviour, IGoap
     GameObject[] Tanks;
     public Color Friendly;
 
-    Vector3 knownEnemyPosition;                     // Last known position of tank
+    public Vector3 knownEnemyPosition;                     // Last known position of tank
     [SerializeField] Transform barrelDirection;     // Direction of barrel
     [SerializeField] TankShooting shoot;            // Shooting script
 
@@ -80,6 +80,7 @@ public class Tank : MonoBehaviour, IGoap
         HashSet<KeyValuePair<string, object>> goal = new HashSet<KeyValuePair<string, object>>();
         goal.Add(new KeyValuePair<string, object>("damageTank", true));
         goal.Add(new KeyValuePair<string, object>("stayAlive", true));
+        goal.Add(new KeyValuePair<string, object>("searchForTank", true));
         return goal;
     }
 
@@ -95,7 +96,7 @@ public class Tank : MonoBehaviour, IGoap
 
     public void planAborted(AbstractGOAPAction aborter)
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Aborted current plan");
     }
 
     public void planFailed(HashSet<KeyValuePair<string, object>> failedGoal)

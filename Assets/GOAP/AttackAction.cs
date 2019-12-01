@@ -11,12 +11,15 @@ public class AttackAction : AbstractGOAPAction
     LineRenderer line;
     bool reachedNode;
     GraphNode targetNode = null;
+    bool canSee;
+    int searchCount;
 
     public AttackAction()
     {
         addPrecondition("hasEnoughHealth", true);
         addPrecondition("canSeeEnemy", true);
         addEffect("damageTank", true);
+        canSee = true;
     }
 
     public override bool checkPrecondtion(GameObject agent)
@@ -41,7 +44,7 @@ public class AttackAction : AbstractGOAPAction
     public override bool perform(GameObject agent)
     {
         Tank currentA = agent.GetComponent<Tank>();
-
+        AgentGOAP currentGOAP = agent.GetComponent<AgentGOAP>();
 
         Debug.Log("Attack");
 
@@ -52,12 +55,33 @@ public class AttackAction : AbstractGOAPAction
             var targetPos = currentA.EnemyTank.transform.position + new Vector3(vector2.x, 0, vector2.y);
             targetNode = currentA.CalculatePath(targetPos);
             Debug.Log(targetNode.transform.position);
-        } else if (currentA.findNodeCloseToPosition(transform.position) == targetNode)
+        }else if (currentA.knownEnemyPosition != null && !currentA.canSeeEnemy && currentA.findNodeCloseToPosition(transform.position) == targetNode)
+        {
+            Debug.Log("Last position");
+            float randomX = Random.Range(-10, 10);
+            float randomZ = Random.Range(-10, 10);
+
+            Vector3 targetPos = currentA.knownEnemyPosition + new Vector3(randomX, 0, randomZ);
+            targetNode = currentA.CalculatePath(targetPos);
+            searchCount++;
+
+        }
+        
+        
+        else if (currentA.findNodeCloseToPosition(transform.position) == targetNode)
         {
             reachedNode = true;
         }
 
-        return true;
+
+        if(searchCount > 5)
+        {
+            return false;
+        } else
+        {
+            return true;
+        }
+
 
     }
 
