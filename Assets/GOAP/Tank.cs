@@ -34,7 +34,7 @@ public class Tank : MonoBehaviour, IGoap
 
     AbstractGOAPAction abstractGOAPAction;
     [SerializeField]
-    bool healthOver10;
+    public bool healthOver10;
     TankHealth tankHealth;
     public bool canSeeEnemy;
 
@@ -63,7 +63,7 @@ public class Tank : MonoBehaviour, IGoap
     {
         moveAgent(abstractGOAPAction);
 
-        if (tankHealth.m_CurrentHealth <= 70)
+        if (tankHealth.m_CurrentHealth <= 120)
         {
             healthOver10 = false;
         }

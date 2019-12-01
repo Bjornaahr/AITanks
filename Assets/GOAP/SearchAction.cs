@@ -56,12 +56,15 @@ public class SearchAction : AbstractGOAPAction
         Tank currentA = agent.GetComponent<Tank>();
 
 
+
+
+
         if (targetNode == null || currentA.findNodeCloseToPosition(transform.position) == targetNode)
         {
-                float randomX = Random.Range(minX, maxX);
-                float randomZ = Random.Range(minZ, maxZ);
-                Vector3 targetPos = new Vector3(randomX, 0, randomZ);
-                targetNode = currentA.CalculatePath(targetPos);
+            float randomX = Random.Range(minX, maxX);
+            float randomZ = Random.Range(minZ, maxZ);
+            Vector3 targetPos = new Vector3(randomX, 0, randomZ);
+            targetNode = currentA.CalculatePath(targetPos);
         }
 
 

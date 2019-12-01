@@ -13,7 +13,6 @@ public class AttackAction : AbstractGOAPAction
     GraphNode targetNode = null;
     bool canSee;
     int searchCount;
-
     public AttackAction()
     {
         addPrecondition("hasEnoughHealth", true);
@@ -54,8 +53,10 @@ public class AttackAction : AbstractGOAPAction
             var vector2 = Random.insideUnitCircle.normalized * radius;
             var targetPos = currentA.EnemyTank.transform.position + new Vector3(vector2.x, 0, vector2.y);
             targetNode = currentA.CalculatePath(targetPos);
+
+
             Debug.Log(targetNode.transform.position);
-        }else if (currentA.knownEnemyPosition != null && !currentA.canSeeEnemy && currentA.findNodeCloseToPosition(transform.position) == targetNode)
+        } else if (currentA.knownEnemyPosition != null && !currentA.canSeeEnemy && currentA.findNodeCloseToPosition(transform.position) == targetNode)
         {
             Debug.Log("Last position");
             float randomX = Random.Range(-10, 10);
@@ -65,6 +66,9 @@ public class AttackAction : AbstractGOAPAction
             targetNode = currentA.CalculatePath(targetPos);
             searchCount++;
 
+        } else if (currentA.knownEnemyPosition == Vector3.zero && !currentA.canSeeEnemy)
+        {
+            return false;
         }
         
         
@@ -77,10 +81,9 @@ public class AttackAction : AbstractGOAPAction
         if(searchCount > 5)
         {
             return false;
-        } else
-        {
-            return true;
-        }
+        } 
+        return currentA.healthOver10;
+        
 
 
     }

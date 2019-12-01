@@ -52,7 +52,16 @@ public class HideAction : AbstractGOAPAction
                 targetPos = new Vector3(randomX, 0, randomZ);
                 isInView = !Physics.Linecast(targetPos, currentA.EnemyTank.transform.position, out hit, ~(1 << gameObject.layer));
             }
-            targetNode = currentA.CalculatePath(targetPos);
+
+            Vector3 targetDir = targetPos - transform.position;
+            Vector3 enemyDir = currentA.EnemyTank.transform.position - transform.position;
+
+            //Super not good but works
+            if (Vector3.Dot(enemyDir, targetDir) < 0)
+            {
+                targetNode = currentA.CalculatePath(targetPos);
+            }
+
         } else if(currentA.findNodeCloseToPosition(transform.position) == targetNode)
         {
            // nodeReached = true;
