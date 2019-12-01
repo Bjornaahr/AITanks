@@ -2,14 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/*
+Entire GOAP system is heavly inspired by
+https://gamedevelopment.tutsplus.com/tutorials/goal-oriented-action-planning-for-a-smarter-ai--cms-20793
+*/
+
+
 //Plans actions that can be completed to get to goal state
 public class ActionPlanner : MonoBehaviour
 {
 
-    /**
-      * Plan what sequence of actions can fulfill the goal.
-      * Returns null if a plan could not be found, or a list of the actions
-      * that must be performed, in order, to fulfill the goal.
+    /*
+      Plan what sequence of actions can fulfill the goal.
+      Returns null if a plan could not be found, or a list of the actions
+      that must be performed, in order, to fulfill the goal.
       */
     public Queue<AbstractGOAPAction> plan(GameObject agent,
                                   HashSet<AbstractGOAPAction> availableActions,
@@ -82,11 +89,11 @@ public class ActionPlanner : MonoBehaviour
         return queue;
     }
 
-    /**
-	 * Returns true if at least one solution was found.
-	 * The possible paths are stored in the leaves list. Each leaf has a
-	 * 'runningCost' value where the lowest cost will be the best action
-	 * sequence.
+    /*
+	 Returns true if at least one solution was found.
+	 The possible paths are stored in the leaves list. Each leaf has a
+	 'runningCost' value where the lowest cost will be the best action
+	 sequence.
 	 */
     protected bool buildGraph(Node parent, List<Node> leaves, HashSet<AbstractGOAPAction> usableActions, HashSet<KeyValuePair<string, object>> goal)
     {
@@ -127,9 +134,8 @@ public class ActionPlanner : MonoBehaviour
         return foundOne;
     }
 
-    /**
-	 * Create a subset of the actions excluding the removeMe one. Creates a new set.
-	 */
+    
+	//Create a subset of the actions excluding the removeMe one. Creates a new set.
     protected HashSet<AbstractGOAPAction> actionSubset(HashSet<AbstractGOAPAction> actions, AbstractGOAPAction removeMe)
     {
         HashSet<AbstractGOAPAction> subset = new HashSet<AbstractGOAPAction>();
@@ -141,10 +147,10 @@ public class ActionPlanner : MonoBehaviour
         return subset;
     }
 
-    /*
-	 * Checks if at least one goal is met. 
-	 * to-do: Create a system for weighting towards paths that fulfill more goals
-	 */
+    
+	 //Checks if at least one goal is met. 
+	 //to-do: Create a system for weighting towards paths that fulfill more goals
+	 
     protected bool goalInState(HashSet<KeyValuePair<string, object>> test, HashSet<KeyValuePair<string, object>> state)
     {
         bool match = false;
@@ -162,10 +168,10 @@ public class ActionPlanner : MonoBehaviour
         return match;
     }
 
-    /*
-	 * Check that all items in 'test' are in 'state'. If just one does not match or is not there
-	 * then this returns false.
-	 */
+    
+	 //Check that all items in 'test' are in 'state'. If just one does not match or is not there
+	 //then this returns false.
+	 
     protected bool inState(HashSet<KeyValuePair<string, object>> test, HashSet<KeyValuePair<string, object>> state)
     {
         bool allMatch = true;
@@ -186,9 +192,8 @@ public class ActionPlanner : MonoBehaviour
         return allMatch;
     }
 
-    /**
-	 * Apply the stateChange to the currentState
-	 */
+    
+	 //Apply the stateChange to the currentState
     protected HashSet<KeyValuePair<string, object>> populateState(HashSet<KeyValuePair<string, object>> currentState, HashSet<KeyValuePair<string, object>> stateChange)
     {
         HashSet<KeyValuePair<string, object>> state = new HashSet<KeyValuePair<string, object>>();
@@ -227,9 +232,8 @@ public class ActionPlanner : MonoBehaviour
         return state;
     }
 
-    /**
-	 * Used for building up the graph and holding the running costs of actions.
-	 */
+    
+	//Used for building up the graph and holding the running costs of actions.
     protected class Node
     {
         public Node parent;

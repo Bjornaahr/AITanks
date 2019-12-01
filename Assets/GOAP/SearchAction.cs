@@ -12,7 +12,7 @@ public class SearchAction : AbstractGOAPAction
     //Approx size of map
     float maxX = 41, minX = -41, maxZ = 20, minZ = -20;
 
-
+    //Set effects and precondtions for executing action
     public SearchAction()
     {
        addPrecondition("hasEnoughHealth", true);
@@ -23,6 +23,7 @@ public class SearchAction : AbstractGOAPAction
        enemySeen = false;
     }
 
+    //Resetting the imporant variables needed to execute the action
     public override void reset()
     {
         Debug.Log("ResetSearch");
@@ -45,6 +46,7 @@ public class SearchAction : AbstractGOAPAction
         return true;
     }
 
+    //Action is done when we see enemy tank
     public override bool isDone()
     {
         return enemySeen;
@@ -55,10 +57,7 @@ public class SearchAction : AbstractGOAPAction
     {
         Tank currentA = agent.GetComponent<Tank>();
 
-
-
-
-
+        //Find a new node when we reached target node or when we don't have a target node
         if (targetNode == null || currentA.findNodeCloseToPosition(transform.position) == targetNode)
         {
             float randomX = Random.Range(minX, maxX);

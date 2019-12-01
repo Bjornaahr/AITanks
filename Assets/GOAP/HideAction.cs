@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//When the tank need to hide
 public class HideAction : AbstractGOAPAction
 {
     GraphNode targetNode = null;
@@ -10,17 +11,20 @@ public class HideAction : AbstractGOAPAction
     //Approx size of map
     float maxX = 41, minX = -41, maxZ = 20, minZ = -20;
 
+    //Set effects and precondtions for executing action
     public HideAction()
     {
         addPrecondition("hasEnoughHealth", false);
         addEffect("stayAlive", true);
     }
 
+    //Check if there is any procedural conditions that needs to be checked
     public override bool checkPrecondtion(GameObject agent)
     {
         return true;
     }
 
+    //Resetting the imporant variables needed to execute the action
     public override void reset()
     {
         nodeReached = false;
@@ -28,6 +32,7 @@ public class HideAction : AbstractGOAPAction
         Debug.Log("Reset Hiding");
     }
 
+    //The action is done when node is reached (Never happens since we don't want it to finsih hiding ever)
     public override bool isDone()
     {
         return nodeReached;
@@ -38,13 +43,14 @@ public class HideAction : AbstractGOAPAction
 
         Tank currentA = agent.GetComponent<Tank>();
 
-
+        //Fidning a hiding spot, if we don't have one or if we can see the enemy tank
         if (targetNode == null || currentA.canSeeEnemy)
         {
             Vector3 targetPos = transform.position;
             bool isInView = true;
             RaycastHit hit;
 
+            //Super not good but works
             while (isInView)
             {
                 float randomX = Random.Range(minX, maxX);
@@ -56,7 +62,7 @@ public class HideAction : AbstractGOAPAction
             Vector3 targetDir = targetPos - transform.position;
             Vector3 enemyDir = currentA.EnemyTank.transform.position - transform.position;
 
-            //Super not good but works
+            //Check if the target node is towards the enemy tank
             if (Vector3.Dot(enemyDir, targetDir) < 0)
             {
                 targetNode = currentA.CalculatePath(targetPos);

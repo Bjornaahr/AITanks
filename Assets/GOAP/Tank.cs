@@ -75,6 +75,7 @@ public class Tank : MonoBehaviour, IGoap
         Debug.Log("Action Done");
     }
 
+    //Create possible goals for tank
     public HashSet<KeyValuePair<string, object>> createGoalState()
     {
         HashSet<KeyValuePair<string, object>> goal = new HashSet<KeyValuePair<string, object>>();
@@ -84,6 +85,7 @@ public class Tank : MonoBehaviour, IGoap
         return goal;
     }
 
+    //Set the world state, this will be pulled when creating a plan
     public HashSet<KeyValuePair<string, object>> getWorldState()
     {
         HashSet<KeyValuePair<string, object>> worldData = new HashSet<KeyValuePair<string, object>>();
@@ -192,7 +194,7 @@ public class Tank : MonoBehaviour, IGoap
         turretBase.transform.rotation = Quaternion.LookRotation(newDirection);
     }
 
-
+    //Calculate a path from tank to target posisiton
     public GraphNode CalculatePath(Vector3 target)
     {
         GraphNode targetNode = findNodeCloseToPosition(target);
@@ -203,6 +205,7 @@ public class Tank : MonoBehaviour, IGoap
         return targetNode;
     }
 
+    //Finds the graphnode nearest to given position
     public GraphNode findNodeCloseToPosition(Vector3 wantedPosition)
     {
         GraphNode nearNode = null;

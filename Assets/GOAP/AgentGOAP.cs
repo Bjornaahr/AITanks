@@ -3,6 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+Entire GOAP system is heavly inspired by
+https://gamedevelopment.tutsplus.com/tutorials/goal-oriented-action-planning-for-a-smarter-ai--cms-20793
+*/
+
+
 public class AgentGOAP : MonoBehaviour
 {
 
@@ -75,22 +81,27 @@ public class AgentGOAP : MonoBehaviour
     private void createIdleState()
     {
         idleState = (fsm, obj) => {
-
+            //Get the world state and goals
             HashSet<KeyValuePair<string, object>> worldState = dataProvider.getWorldState();
             HashSet<KeyValuePair<string, object>> goal = dataProvider.createGoalState();
-
+            //Get the plan
             Queue<AbstractGOAPAction> plan = planner.plan(gameObject, availableActions, worldState, goal);
             if (plan != null)
             {
+                //Set the actions to the actions in the plan
                 currentActions = plan;
+                //Tell agent it found a plan
                 dataProvider.planFound(goal, plan);
 
+                //Pop the idlestate
                 fsm.popState();
+                //Start performing actions
                 fsm.pushState(performActionState);
             }
-            else
-            {
+            else { 
+                //Tell agent plan failed
                 dataProvider.planFailed(goal);
+                //Try to find a new plan
                 fsm.popState();
                 fsm.pushState(idleState);
             }
@@ -125,6 +136,7 @@ public class AgentGOAP : MonoBehaviour
 
             if (!hasActionPlan())
             {
+                //Go find new plan and tell the agent it is finished
                 fsm.popState();
                 fsm.pushState(idleState);
                 dataProvider.actionsFinished();
@@ -134,22 +146,27 @@ public class AgentGOAP : MonoBehaviour
             AbstractGOAPAction action = currentActions.Peek();
             if (action.isDone())
             {
+                //Take action out of action queue
                 currentActions.Dequeue();
             }
 
             if (hasActionPlan())
             {
+                //Set action to the action on top of the queue
                 action = currentActions.Peek();
+                //Check if you need to be in range
                 bool inRange = action.requiresInRange() ? action.isInRange() : true;
+
 
                 if (inRange)
                 {
+                    //Check if we could perfrom action if not go to idle state and find a new plan
                     bool success = action.perform(obj);
                     if (!success)
                     {
                         fsm.popState();
                         fsm.pushState(idleState);
-                       // createIdleState();
+                        //ABORT
                         dataProvider.planAborted(action);
                     }
                 }
@@ -160,6 +177,7 @@ public class AgentGOAP : MonoBehaviour
             }
             else
             {
+                //I don't have a plan and need to find one
                 fsm.popState();
                 fsm.pushState(idleState);
                 dataProvider.actionsFinished();
